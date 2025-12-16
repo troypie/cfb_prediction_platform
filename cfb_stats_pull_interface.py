@@ -1,7 +1,9 @@
-# main interafec for ETL pipeline
+""" main interafece for ETL pipeline """
 
 
-def pull_team_stats(team_name: str, start_week: int, end_week: int, year: int):
+
+
+def pull_team_stats(team_name: str, year: int, start_week: int, end_week: int):
     """
     Pulls all of the team stats for a given team from start week to end week for a given year.
     This function will check to see if data already exists for a given, team, week, 
