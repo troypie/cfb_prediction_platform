@@ -10,6 +10,9 @@ from pprint import pprint
 # custom imports
 import api_utils as utils
 import cfb_api_key
+from postgres_stuff.postgres_config import postgres_config
+
+
 
 
 #Api Key
@@ -188,13 +191,7 @@ def get_player_stats(year: int, start_week: int, end_week: int):
 
 
 # --- Postgres Config ---
-config = {
-    'user': 'postgres',
-    'password': 'database1',
-    'host': 'localhost',
-    'port': '5432',
-    'dbname': 'sports_data'
-}
+config = postgres_config
 
 def upload_games_to_postgres(df, db_config):
     """
@@ -225,35 +222,32 @@ def upload_games_to_postgres(df, db_config):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-'''
-# example of get team stats
-stats = get_team_stats(2025, start_week=1, end_week=3)
-if stats is not None:
-    stats_df = utils.make_key_value_df_from_stats(stats)
-    states_final_df = utils.transform_stats_to_wide_format(stats_df)
-'''
-    
 
+# ---- CLI entrypoint  ----
+if __name__ == "__main__":
 
-# example of get games
-games = get_games(2025)
-games_df = utils.games_to_df(games)
-pprint(games_df.head())
-#upload_games_to_postgres(games_df, config)
+    '''
+    # example of get team stats
+    stats = get_team_stats(2025, start_week=1, end_week=3)
+    if stats is not None:
+        stats_df = utils.make_key_value_df_from_stats(stats)
+        states_final_df = utils.transform_stats_to_wide_format(stats_df)
+    '''
+        
+    # example of get games and upload them to postgres
+    games = get_games(2025)
+    games_df = utils.games_to_df(games)
+    pprint(games_df.head())
+    #upload_games_to_postgres(games_df, config)
 
+    # upload_games_to_postgres(my_games_df, config)
 
-
-
-# Assuming 'my_games_df' is your DataFrame
-# upload_games_to_postgres(my_games_df, config)
-
-
-'''
-# example of get player stats
-stats = get_player_stats(2025, start_week=1, end_week=3)
-if stats is not None:
-    stats_df = utils.make_key_value_df_from_stats(stats)
-    stats_final_df = utils.transform_player_stats_to_wide(stats_df)
-    print(stats_final_df)
-'''
+    '''
+    # example of get player stats
+    stats = get_player_stats(2025, start_week=1, end_week=3)
+    if stats is not None:
+        stats_df = utils.make_key_value_df_from_stats(stats)
+        stats_final_df = utils.transform_player_stats_to_wide(stats_df)
+        print(stats_final_df)
+    '''
 
