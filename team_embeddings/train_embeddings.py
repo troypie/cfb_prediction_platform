@@ -57,12 +57,17 @@ def prepare_game_data(games_df: pd.DataFrame) -> List[dict]:
         
         point_diff = home_score - away_score
         
+        # Skip this game if either score is NaN
+        if pd.isna(home_score) or pd.isna(away_score) or pd.isna(point_diff):
+            continue
             
         game_data.append({
             'home_team': home_team,
             'home_team_id': home_team_id,
+            'home_score': home_score,
             'away_team': away_team,
             'away_team_id': away_team_id,
+            'away_score': away_score,
             'point_diff': point_diff
         })
     
@@ -212,7 +217,8 @@ def plot_training_loss(loss_history, save_path=None):
         plt.savefig(save_path, dpi=300, bbox_inches='tight')
         print(f"Loss plot saved to {save_path}")
     
-    plt.close()
+    plt.show()
+    #plt.close()
 
 
 # ---- CLI entrypoint  ----
@@ -222,26 +228,29 @@ if __name__ == "__main__":
     engine = create_engine(connection_url)
     
     games_df = get_games_data_from_db(engine)
-    games_dicts = prepare_game_data(games_df)
-    print(games_dicts)
+    games_dict_list = prepare_game_data(games_df)
+    team_id_map = make_default_team_id_map(games_dict_list)
     
-    '''
-    team_id_map = make_default_team_id_map(games_dicts)
+    embedding_dim = 5
+    epochs = 1700
     
+
+    team_vectors, model, loss_history = train_team2vec(games_dict_list, 
+                    team_id_map, embedding_dim=embedding_dim, epochs=epochs)
+
+    team_vectors_df = pd.DataFrame.from_dict(team_vectors, orient='index')
+    plot_training_loss(loss_history)
     
-    embedding_dim = 20
-    epochs = 100
-    # train the model
-    team_vectors, model, loss_history = train_team2vec(games_dicts, team_id_map, 
-                                                       embedding_dim=embedding_dim, epochs=epochs)
+    print('Done')
     '''
     #vector_file_name = f'/team2vec_embeddings_edim{embedding_dim}_epochs{epochs}.csv'
-    #team_vectors_df = pd.DataFrame.from_dict(team_vectors, orient='index')
+    
     #team_vectors_df.index.name = 'team_name'
     #team_vectors_df.to_csv(experiment_output_path + vector_file_name)
     
     #graph_file_name = f'/team2vec_training_loss_plot_edim{embedding_dim}_epochs{epochs}.png'
-    #plot_training_loss(loss_history, save_path=experiment_output_path + graph_file_name)
+    
     #print(f"Experiment results saved to {experiment_output_path}")
     #print(f"Team graph saved to {graph_file_name}")
     #print(f"Team vectors saved to {vector_file_name}")
+    '''
