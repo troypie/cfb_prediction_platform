@@ -13,7 +13,7 @@ import cfb_api_key
 
 
 #Api Key
-api_key = "cfb_data_api_key"
+api_key = cfb_api_key.cfbd_api_key
 # Defining the host is optional and defaults to https://api.collegefootballdata.com
 # See configuration.py for a list of all supported configuration parameters.
 configuration = cfbd.Configuration(
