@@ -9,10 +9,11 @@ from pprint import pprint
 
 # custom imports
 import api_utils as utils
+import cfb_api_key
 
 
 #Api Key
-api_key = "xkdLaiEmeJaK3JeZvRZ+cuTT30SMpoJhqwMxBnvDp2mwHWUi8sgj1Lc35bHBqb3X"
+api_key = "cfb_data_api_key"
 # Defining the host is optional and defaults to https://api.collegefootballdata.com
 # See configuration.py for a list of all supported configuration parameters.
 configuration = cfbd.Configuration(
