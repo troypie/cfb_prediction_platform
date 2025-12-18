@@ -238,7 +238,8 @@ if stats is not None:
 # example of get games
 games = get_games(2025)
 games_df = utils.games_to_df(games)
-upload_games_to_postgres(games_df, config)
+pprint(games_df.head())
+#upload_games_to_postgres(games_df, config)
 
 
 
