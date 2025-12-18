@@ -1,4 +1,6 @@
 import os
+import pandas as pd
+from sqlalchemy import create_engine
 
 # cfb stats api
 import cfbd
@@ -6,7 +8,7 @@ from cfbd.rest import ApiException
 from pprint import pprint
 
 # custom imports
-from api_utils import transform_stats_to_wide_format, make_key_value_df_from_stats
+import api_utils as utils
 
 
 #Api Key
@@ -140,28 +142,116 @@ def get_team_stats(year, start_week=0, end_week=16):
     return api_response
 
 
-with cfbd.ApiClient(configuration) as api_client:
-    # Create an instance of the API class
-    api_instance = cfbd.GamesApi(api_client)
-    year = 56 # int | Required year filter (except when id is specified) (optional)
-    week = 56 # int | Optional week filter (optional)
-    season_type = cfbd.SeasonType() # SeasonType | Optional season type filter (optional)
-    classification = cfbd.DivisionClassification() # DivisionClassification | Optional division classification filter (optional)
-    team = 'team_example' # str | Optional team filter (optional)
-    home = 'home_example' # str | Optional home team filter (optional)
-    away = 'away_example' # str | Optional away team filter (optional)
-    conference = 'conference_example' # str | Optional conference filter (optional)
-    id = 56 # int | Game id filter to retrieve a single game (optional)
+def get_games(year: int, week : int | None = None):
+    api_response = None
+    with cfbd.ApiClient(configuration) as api_client:
+        # Create an instance of the API class
+        api_instance = cfbd.GamesApi(api_client)
+        #year = 2025 # int | Required year filter (except when id is specified) (optional)
+        #week = 3 # int | Optional week filter (optional)
+        #season_type = cfbd.SeasonType() # SeasonType | Optional season type filter (optional)
+        #classification = cfbd.DivisionClassification() # DivisionClassification | Optional division classification filter (optional)
+        #team = 'team_example' # str | Optional team filter (optional)
+        #home = 'home_example' # str | Optional home team filter (optional)
+        #away = 'away_example' # str | Optional away team filter (optional)
+        #conference = 'conference_example' # str | Optional conference filter (optional)
+        #id = 56 # int | Game id filter to retrieve a single game (optional)
 
+        try:
+            api_response = api_instance.get_games(year=year, week=week)
+        except Exception as e:
+            print("Exception when calling GamesApi->get_games: %s\n" % e)
+        
+    return api_response
+
+def get_player_stats(year: int, start_week: int, end_week: int):
+    api_response = None
+    with cfbd.ApiClient(configuration) as api_client:
+        # Create an instance of the API class
+        api_instance = cfbd.StatsApi(api_client)
+        #year = 2025 # int | Required year filter
+        #conference = 'conference_example' # str | Optional conference filter (optional)
+        #team = 'team_example' # str | Optional team filter (optional)
+        #start_week = 1 # int | Optional starting week range (optional)
+        #end_week = 3 # int | Optional ending week range (optional)
+        #season_type = cfbd.SeasonType() # SeasonType | Optional season type filter (optional)
+        #category = 'category_example' # str | Optional category filter (optional)
+
+        try:
+            api_response = api_instance.get_player_season_stats(year, start_week=start_week, end_week=end_week)
+        except Exception as e:
+            print("Exception when calling StatsApi->get_player_season_stats: %s\n" % e)
+
+        return api_response
+
+
+
+# --- Postgres Config ---
+config = {
+    'user': 'postgres',
+    'password': 'database1',
+    'host': 'localhost',
+    'port': '5432',
+    'dbname': 'sports_data'
+}
+
+def upload_games_to_postgres(df, db_config):
+    """
+    Uploads a DataFrame to the 'games' table in PostgreSQL.
+    
+    :param df: pandas DataFrame containing game data
+    :param db_config: dictionary with keys 'user', 'password', 'host', 'port', 'dbname'
+    """
+    table_name = 'cfb_games'
     try:
-        api_response = api_instance.get_games(year=year, week=week, season_type=season_type, classification=classification, team=team, home=home, away=away, conference=conference, id=id)
-        print("The response of GamesApi->get_games:\n")
-        pprint(api_response)
+        # 1. Create the connection string (URL)
+        # Format: postgresql://username:password@host:port/database
+        connection_url = (
+            f"postgresql://{db_config['user']}:{db_config['password']}@"
+            f"{db_config['host']}:{db_config['port']}/{db_config['dbname']}"
+        )
+        
+        # 2. Create the SQLAlchemy engine
+        engine = create_engine(connection_url)
+        
+        # 3. Upload the data
+        # 'if_exists=append' ensures we don't delete the table, just add rows
+        # 'index=False' prevents pandas from creating a column for the DF index
+        df.to_sql(table_name, engine, if_exists='append', index=False)
+        
+        print(f"Successfully uploaded {len(df)} rows to the games table.")
+        
     except Exception as e:
-        print("Exception when calling GamesApi->get_games: %s\n" % e)
+        print(f"An error occurred: {e}")
 
-
+'''
+# example of get team stats
 stats = get_team_stats(2025, start_week=1, end_week=3)
 if stats is not None:
-    stats_df = make_key_value_df_from_stats(stats)
-    transform_stats_to_wide_format(stats_df)
+    stats_df = utils.make_key_value_df_from_stats(stats)
+    states_final_df = utils.transform_stats_to_wide_format(stats_df)
+'''
+    
+
+
+# example of get games
+games = get_games(2025)
+games_df = utils.games_to_df(games)
+upload_games_to_postgres(games_df, config)
+
+
+
+
+# Assuming 'my_games_df' is your DataFrame
+# upload_games_to_postgres(my_games_df, config)
+
+
+'''
+# example of get player stats
+stats = get_player_stats(2025, start_week=1, end_week=3)
+if stats is not None:
+    stats_df = utils.make_key_value_df_from_stats(stats)
+    stats_final_df = utils.transform_player_stats_to_wide(stats_df)
+    print(stats_final_df)
+'''
+

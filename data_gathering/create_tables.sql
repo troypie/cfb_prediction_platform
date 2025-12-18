@@ -88,3 +88,51 @@ CREATE TABLE team_season_stats (
     -- Constraint to prevent duplicate team entries per season
     PRIMARY KEY ("team", "season")
 );
+
+-- Games table create script
+CREATE TABLE games (
+    -- Identification
+    id INTEGER PRIMARY KEY,
+    season INTEGER NOT NULL,
+    week INTEGER NOT NULL,
+    season_type VARCHAR(50), -- Storing 'regular', 'postseason', etc.
+
+    -- Timing & Status
+    start_date TIMESTAMPTZ, -- Handles the timezone info
+    start_time_tbd BOOLEAN DEFAULT FALSE,
+    completed BOOLEAN DEFAULT FALSE,
+    neutral_site BOOLEAN DEFAULT FALSE,
+    conference_game BOOLEAN DEFAULT FALSE,
+    
+    -- Venue info
+    attendance INTEGER,
+    venue_id INTEGER,
+    venue VARCHAR(255),
+
+    -- Home Team Data
+    home_id INTEGER,
+    home_team VARCHAR(255),
+    home_conference VARCHAR(100),
+    home_classification VARCHAR(50), -- Storing 'fbs', 'fcs'
+    home_points INTEGER,
+    home_line_scores NUMERIC[], -- Stores the list [0, 14, 3, 6]
+    home_postgame_win_probability NUMERIC(5, 4), -- Precision for 0.9574
+    home_pregame_elo INTEGER,
+    home_postgame_elo INTEGER,
+
+    -- Away Team Data
+    away_id INTEGER,
+    away_team VARCHAR(255),
+    away_conference VARCHAR(100),
+    away_classification VARCHAR(50),
+    away_points INTEGER,
+    away_line_scores NUMERIC[], -- Stores the list [0, 0, 3, 0]
+    away_postgame_win_probability NUMERIC(5, 4),
+    away_pregame_elo INTEGER,
+    away_postgame_elo INTEGER,
+
+    -- Metadata
+    excitement_index NUMERIC(10, 5),
+    highlights TEXT,
+    notes TEXT
+);
