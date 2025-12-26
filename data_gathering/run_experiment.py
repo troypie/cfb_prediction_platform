@@ -37,7 +37,6 @@ def main():
     xgb_probs = xgb_model.predict_proba(X_test)
     attn_probs = cover_experiment.get_attn_probabailities(attn_model, X_test)
     
-    breakpoint()
     xgb_preds = cover_experiment.get_predictions_fromProbs(xgb_probs)
     attn_preds = cover_experiment.get_predictions_fromProbs(attn_probs)
 
@@ -49,7 +48,6 @@ def main():
 
     # - Add method for inputting teams and outputting predictions - #
     print('Done')
-    breakpoint()
 
 if __name__ == "__main__":
     main()
