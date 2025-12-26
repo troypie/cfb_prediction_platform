@@ -13,14 +13,10 @@ import cfb_api_key
 from postgres_stuff.postgres_config import postgres_config
 
 
-
-
-#Api Key
-api_key = cfb_api_key.cfbd_api_key
 # Defining the host is optional and defaults to https://api.collegefootballdata.com
 # See configuration.py for a list of all supported configuration parameters.
 configuration = cfbd.Configuration(
-    access_token = api_key
+    access_token = cfb_api_key.cfbd_api_key
 )
 
 

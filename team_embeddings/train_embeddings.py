@@ -46,7 +46,7 @@ def prepare_game_data(games_df: pd.DataFrame) -> pd.DataFrame:
     df = df.dropna(subset=['home_points', 'away_points'])
     
     # calculate point_diff
-    df['point_diff'] = df['home_points'] - df['away_points']
+    df['point_diff'] = df['away_points'] - df['home_points'] 
     
     # remove any resulting NaNs in point_diff
     df = df.dropna(subset=['point_diff'])

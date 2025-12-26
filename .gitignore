@@ -1,3 +1,4 @@
 data_gathering/cfb_api_key
 data_gathering/cfb_api_key.py
 postgres_stuff/postgres_config.py
+data_gathering/__pycache__/cfb_api_key.cpython-310.pyc
